@@ -4,50 +4,42 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>チェキメーカー</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500&family=Noto+Sans+JP:wght@400&display=swap" rel="stylesheet">
 <style>
   :root{
-    /* 正本トークン（CLAUDE.md §6.1） */
-    --bg:#F7F8FC; --bg2:#EEF4FF; --panel:#DCE9FF;
-    --crystal:#CFEFFF; --crystal2:#DFF7FF; --reflect:#E6F5FF;
-    --accent:#7FA8E8; --accent-d:#5A84C9;
-    --ink:#1E2633; --muted:#6E7787; --line:#DCE9FF;
-    --serif:"Shippori Mincho",serif;
-    --sans:"Zen Kaku Gothic New","Noto Sans JP",system-ui,sans-serif;
+    --ice:#B7D9F7; --mist:#F8FAFD; --glass:#DDE5EC; --navy:#1E2633;
+    --silver:#C6CED8; --lavender:#CFC9F6; --reflect:#EAF4FF; --muted:#6b7888;
   }
   *{ box-sizing:border-box; }
   body{
-    font-family:var(--sans); color:var(--ink); margin:0; min-height:100dvh;
-    background:radial-gradient(46% 32% at 90% -4%,var(--crystal2),transparent 70%),var(--bg);
+    font-family:"Zen Kaku Gothic New","DM Sans",system-ui,-apple-system,sans-serif;
+    background:var(--mist); color:var(--navy); margin:0; min-height:100dvh;
     display:grid; place-items:start center; padding:28px 18px;
   }
   .app{ width:min(900px,100%); }
-  h1{ font-family:var(--serif); font-size:24px; font-weight:700; margin:0 0 4px; letter-spacing:.03em; }
-  .lead{ font-family:"Noto Sans JP",sans-serif; font-size:12px; color:var(--muted); margin:0 0 20px; }
-  .card{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:20px; box-shadow:0 8px 24px rgba(30,38,51,.05); }
+  h1{ font-size:20px; font-weight:700; margin:0 0 4px; letter-spacing:.02em; }
+  .lead{ font-size:12px; color:var(--muted); margin:0 0 20px; }
+  .card{ background:#fff; border:1px solid var(--glass); border-radius:18px; padding:20px; }
   .row{ display:flex; gap:24px; flex-wrap:wrap; }
   .col{ flex:1 1 300px; }
   label{ font-size:12px; color:var(--muted); display:block; }
   input[type="file"], input[type="text"]{
     width:100%; margin-top:6px; padding:11px 12px; border-radius:12px;
-    border:1px solid var(--line); background:var(--reflect); color:var(--ink);
+    border:1px solid var(--glass); background:var(--reflect); color:var(--navy);
     font-family:inherit; font-size:13px;
   }
   .field{ margin-top:14px; }
   .accent{ display:flex; gap:8px; margin-top:8px; }
-  .swatch{ width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid #fff; box-shadow:0 0 0 1px var(--line); }
-  .swatch.sel{ box-shadow:0 0 0 2px var(--accent-d); }
+  .swatch{ width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid #fff; box-shadow:0 0 0 1px var(--glass); }
+  .swatch.sel{ box-shadow:0 0 0 2px var(--navy); }
   .btns{ display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
   button{
-    font-family:var(--sans); font-size:13px; padding:10px 16px; border-radius:12px;
-    border:1px solid var(--line); cursor:pointer; transition:.15s; background:#fff; color:var(--ink);
+    font-family:inherit; font-size:13px; padding:10px 16px; border-radius:12px;
+    border:1px solid var(--glass); cursor:pointer; transition:.15s; background:#fff; color:var(--navy);
   }
-  button.primary{ background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; box-shadow:0 6px 16px rgba(127,168,232,.28); }
+  button.primary{ background:var(--ice); border-color:var(--ice); color:#16324d; font-weight:700; }
   button:hover{ background:var(--reflect); }
-  button.primary:hover{ filter:brightness(.98); background:var(--accent); }
-  .tip{ font-family:"Noto Sans JP",sans-serif; font-size:11px; color:var(--muted); margin-top:10px; }
+  button.primary:hover{ filter:brightness(.98); }
+  .tip{ font-size:11px; color:var(--muted); margin-top:10px; }
   .stage{ display:grid; place-items:center; margin-top:18px; }
   canvas{ max-width:100%; border-radius:12px; box-shadow:0 10px 30px rgba(30,38,51,.10); }
 </style>
@@ -71,9 +63,9 @@
           <div class="field">
             <label>アクセント</label>
             <div class="accent" id="accent">
-              <div class="swatch sel" data-c="#5A84C9" style="background:#7FA8E8" title="青"></div>
-              <div class="swatch" data-c="#7FA8E8" style="background:#CFEFFF" title="クリスタル水色"></div>
-              <div class="swatch" data-c="#9AA6B4" style="background:#D9D9D9" title="シルバー"></div>
+              <div class="swatch sel" data-c="#9CC6EE" style="background:#B7D9F7" title="氷水色"></div>
+              <div class="swatch" data-c="#B7AEE9" style="background:#CFC9F6" title="ラベンダー"></div>
+              <div class="swatch" data-c="#AAB6C2" style="background:#C6CED8" title="シルバー"></div>
             </div>
           </div>
           <div class="btns">
@@ -82,7 +74,7 @@
             <button id="print">印刷用に保存（大）</button>
             <button id="clear">リセット</button>
           </div>
-          <div class="tip">画面 720×900px。「印刷用に保存（大）」は同じ見た目を 2160×2700px（小カードなら300dpi以上）で書き出します。見出し・ひとことは明朝（Shippori Mincho）。</div>
+          <div class="tip">画面 720×900px。「印刷用に保存（大）」は同じ見た目を 2160×2700px（小カードなら300dpi以上）で書き出します。フォントはOS既定。</div>
         </div>
       </div>
       <div class="stage"><canvas id="c" width="720" height="900" aria-label="チェキ出力"></canvas></div>
@@ -92,8 +84,8 @@
 <script>
 const W = 720, H = 900;
 const PAD = 26, INNER = 30, CAP_H = 150, FRAME_R = 26, PHOTO_R = 14;
-const COL = { back:"#EEF4FF", paper:"#FFFFFF", photoBg:"#E6F5FF", ink:"#1E2633", date:"#9aa6b4" };
-let accentLine = "#5A84C9";   // 罫線・点の色（正本アクセント青）
+const COL = { back:"#EAF4FF", paper:"#FFFFFF", photoBg:"#EDF1F7", ink:"#1E2633", date:"#9aa6b4" };
+let accentLine = "#9CC6EE";   // 罫線・点の色（濃いめのアクセント）
 let img = null;
 
 const screenCtx = document.querySelector("#c").getContext("2d");
@@ -171,7 +163,7 @@ function placePhoto(image) {
   roundRect(x, y, w, h, PHOTO_R); ctx.clip();
   ctx.drawImage(image, dx, dy, dw, dh);
   // ごく薄い寒色トーン（水色の世界観に馴染ませる・弱め）
-  ctx.fillStyle = "rgba(127,168,232,0.08)";
+  ctx.fillStyle = "rgba(183,217,247,0.08)";
   ctx.fillRect(x, y, w, h);
   ctx.restore();
 }
@@ -187,16 +179,16 @@ function drawCaption(text) {
   ctx.fillStyle = accentLine;
   ctx.beginPath(); ctx.arc(x + 8, boxY + 10, 3.5, 0, Math.PI * 2); ctx.fill();
 
-  // ひとこと（明朝・世界観の核）
+  // ひとこと
   ctx.fillStyle = COL.ink;
-  ctx.font = '700 30px "Shippori Mincho", serif';
+  ctx.font = '600 28px "Zen Kaku Gothic New", system-ui, sans-serif';
   ctx.textBaseline = "top";
-  ctx.fillText((text || "").trim().slice(0, 32), x + 4, boxY + 28);
+  ctx.fillText((text || "").trim().slice(0, 32), x + 4, boxY + 30);
 
   // 日付（控えめ）
-  ctx.font = '14px "Noto Sans JP", system-ui, sans-serif';
+  ctx.font = '14px "Zen Kaku Gothic New", system-ui, sans-serif';
   ctx.fillStyle = COL.date;
-  ctx.fillText(new Date().toISOString().slice(0, 10), x + 4, boxY + 80);
+  ctx.fillText(new Date().toISOString().slice(0, 10), x + 4, boxY + 78);
 }
 
 function addGrain(strength) {
@@ -255,10 +247,6 @@ function fileToImage(file) {
 }
 
 baseFrame();
-// 明朝Webフォントが届いたら、文字を含む絵を描き直す（フォント読み込みの取りこぼし防止）
-if (document.fonts && document.fonts.ready) {
-  document.fonts.ready.then(() => { if (img || el.cap.value) draw(); });
-}
 </script>
 </body>
 </html>

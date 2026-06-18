@@ -7,6 +7,8 @@
 `index.html` をブラウザで開くだけ。画像を選び、ひとことを入れて「チェキを作る」→「PNGで保存」。
 
 ## 技術
-HTML / CSS / Canvas（Vanilla JS）。淡色トークン・アクセント切替（氷/ラベンダー/シルバー）。
+HTML / CSS / Canvas（Vanilla JS）。正本デザイントークン（淡色）＋明朝見出し（Shippori Mincho）。アクセント切替（青/クリスタル/シルバー）。
+
+※ 旧パレット版（Ice Blue/ラベンダー・ゴシック）は `index-classic.html` に保存。
 
 制作: Shizuku
