@@ -36,7 +36,9 @@
     font-family:inherit; font-size:13px;
   }
   .field{ margin-top:14px; }
-  .accent{ display:flex; gap:8px; margin-top:8px; }
+  .accent{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .swatch.pearl{ box-shadow:0 0 0 1px #C9CDD3; }   /* 白は台紙に溶けないよう薄いグレーの縁 */
+  .swatch.pearl.sel{ box-shadow:0 0 0 2px var(--accent-d); }
   .swatch{ width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid #fff; box-shadow:0 0 0 1px var(--line); }
   .swatch.sel{ box-shadow:0 0 0 2px var(--accent-d); }
   .btns{ display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
@@ -74,6 +76,9 @@
               <div class="swatch sel" data-c="#5A84C9" style="background:#7FA8E8" title="青"></div>
               <div class="swatch" data-c="#7FA8E8" style="background:#CFEFFF" title="クリスタル水色"></div>
               <div class="swatch" data-c="#9AA6B4" style="background:#D9D9D9" title="シルバー"></div>
+              <div class="swatch" data-c="#C98A9A" style="background:#EBCBD3" title="くすみピンク"></div>
+              <div class="swatch" data-c="#B7AEE9" style="background:#CFC9F6" title="ラベンダー"></div>
+              <div class="swatch pearl" data-c="#F4F2EE" data-edge="#C9CDD3" style="background:#FAFAFA" title="パールホワイト"></div>
             </div>
           </div>
           <div class="btns">
@@ -94,6 +99,7 @@ const W = 720, H = 900;
 const PAD = 26, INNER = 30, CAP_H = 150, FRAME_R = 26, PHOTO_R = 14;
 const COL = { back:"#EEF4FF", paper:"#FFFFFF", photoBg:"#E6F5FF", ink:"#1E2633", date:"#9aa6b4" };
 let accentLine = "#5A84C9";   // 罫線・点の色（正本アクセント青）
+let accentEdge = null;        // 白など淡い色のときだけ付ける縁の色
 let img = null;
 
 const screenCtx = document.querySelector("#c").getContext("2d");
@@ -127,6 +133,7 @@ el.accent.addEventListener("click", (e) => {
   [...el.accent.children].forEach((c) => c.classList.remove("sel"));
   sw.classList.add("sel");
   accentLine = sw.getAttribute("data-c");
+  accentEdge = sw.getAttribute("data-edge");
   if (img) draw();
 });
 
@@ -182,10 +189,20 @@ function drawCaption(text) {
   const w = W - (PAD + INNER) * 2;
 
   // 細い罫線＋小さなアクセント点
+  const lineY = boxY + 10;
+  if (accentEdge) {
+    // 白い罫線が台紙に溶けないよう、下に薄いグレーの縁を敷く
+    ctx.strokeStyle = accentEdge; ctx.lineWidth = 3.5;
+    ctx.beginPath(); ctx.moveTo(x, lineY); ctx.lineTo(x + w, lineY); ctx.stroke();
+  }
   ctx.strokeStyle = accentLine; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(x, boxY + 10); ctx.lineTo(x + w, boxY + 10); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x, lineY); ctx.lineTo(x + w, lineY); ctx.stroke();
   ctx.fillStyle = accentLine;
-  ctx.beginPath(); ctx.arc(x + 8, boxY + 10, 3.5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + 8, lineY, 3.5, 0, Math.PI * 2); ctx.fill();
+  if (accentEdge) {
+    ctx.strokeStyle = accentEdge; ctx.lineWidth = 1;
+    ctx.stroke();
+  }
 
   // ひとこと（明朝・世界観の核）
   ctx.fillStyle = COL.ink;
