@@ -26,6 +26,15 @@
   .app{ width:min(900px,100%); }
   h1{ font-family:var(--serif); font-size:24px; font-weight:700; margin:0 0 4px; letter-spacing:.03em; }
   .lead{ font-family:"Noto Sans JP",sans-serif; font-size:12px; color:var(--muted); margin:0 0 20px; }
+  .lead + .lead{ margin-top:-12px; }
+  /* 見出しと言語切替を横並び。狭い画面では切替が下に回り込む */
+  .head{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px 16px; flex-wrap:wrap; }
+  /* 言語切替：主役（チェキを作る）と競わないよう、線だけの控えめな2択 */
+  .lang{ display:flex; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#fff; flex-shrink:0; }
+  .lang button{ border:0; border-radius:0; min-width:72px; padding:10px 12px; font-size:12px; color:var(--muted); }
+  .lang button + button{ border-left:1px solid var(--line); }
+  .lang button[aria-pressed="true"]{ background:var(--bg2); color:var(--ink); font-weight:600; }
+  .lang button:focus-visible{ outline:2px solid var(--accent-d); outline-offset:-2px; }
   .card{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:20px; box-shadow:0 8px 24px rgba(30,38,51,.05); }
   .row{ display:flex; gap:24px; flex-wrap:wrap; }
   .col{ flex:1 1 300px; }
@@ -60,48 +69,128 @@
 </head>
 <body>
   <div class="app">
-    <h1>チェキメーカー</h1>
-    <p class="lead">画像とひとことを入れるだけ。静かな水色のチェキ風PNGにして保存できる。画像と入力内容は端末内で処理し、外部へ送信しません。表示用フォントはGoogle Fontsから取得します。</p>
+    <div class="head">
+      <h1 data-i18n="title">チェキメーカー</h1>
+      <!-- 言語切替：各ボタンはその言語自身の表記（読めない言語でも自分の言語は見つけられる） -->
+      <div class="lang" id="lang" role="group" aria-label="言語 / Language">
+        <button type="button" data-lang="ja" lang="ja" aria-pressed="true">日本語</button>
+        <button type="button" data-lang="en" lang="en" aria-pressed="false">English</button>
+      </div>
+    </div>
+    <p class="lead" data-i18n="lead">画像とひとことを入れるだけ。静かな水色のチェキ風PNGにして保存できる。画像と入力内容は端末内で処理し、外部へ送信しません。表示用フォントはGoogle Fontsから取得します。</p>
+    <p class="lead" data-i18n="about" hidden></p>
 
     <div class="card">
       <div class="row">
         <div class="col">
-          <label>画像を選ぶ
+          <label><span data-i18n="fileLabel">画像を選ぶ</span>
             <input id="file" type="file" accept="image/*" aria-describedby="file-status" />
           </label>
           <p class="tip" id="file-status" role="status"></p>
           <div class="field">
-            <label>ひとこと（推しの名前・日付・会場など）
+            <label><span data-i18n="captionLabel">ひとこと（推しの名前・日付・会場など）</span>
               <input id="caption" type="text" maxlength="64" placeholder="" aria-describedby="caption-tip" />
             </label>
-            <p class="tip" id="caption-tip">入力は最大64文字。2行に収まらない部分は「…」で省略されます。</p>
+            <p class="tip" id="caption-tip" data-i18n="captionTip">入力は最大64文字。2行に収まらない部分は「…」で省略されます。</p>
           </div>
           <div class="field">
-            <label id="accent-label">アクセント</label>
+            <label id="accent-label" data-i18n="accentLabel">アクセント</label>
             <div class="accent" id="accent" role="group" aria-labelledby="accent-label">
-              <button type="button" class="swatch" aria-pressed="true" data-c="#5A84C9" style="--sw:#7FA8E8" title="青" aria-label="青"></button>
-              <button type="button" class="swatch" aria-pressed="false" data-c="#7FA8E8" style="--sw:#CFEFFF" title="クリスタル水色" aria-label="クリスタル水色"></button>
-              <button type="button" class="swatch" aria-pressed="false" data-c="#9AA6B4" style="--sw:#D9D9D9" title="シルバー" aria-label="シルバー"></button>
-              <button type="button" class="swatch" aria-pressed="false" data-c="#C98A9A" style="--sw:#EBCBD3" title="くすみピンク" aria-label="くすみピンク"></button>
-              <button type="button" class="swatch" aria-pressed="false" data-c="#B7AEE9" style="--sw:#CFC9F6" title="ラベンダー" aria-label="ラベンダー"></button>
-              <button type="button" class="swatch pearl" aria-pressed="false" data-c="#F4F2EE" data-edge="#C9CDD3" style="--sw:#FAFAFA" title="パールホワイト" aria-label="パールホワイト"></button>
+              <button type="button" class="swatch" aria-pressed="true" data-c="#5A84C9" data-name="blue" style="--sw:#7FA8E8" title="青" aria-label="青"></button>
+              <button type="button" class="swatch" aria-pressed="false" data-c="#7FA8E8" data-name="crystal" style="--sw:#CFEFFF" title="クリスタル水色" aria-label="クリスタル水色"></button>
+              <button type="button" class="swatch" aria-pressed="false" data-c="#9AA6B4" data-name="silver" style="--sw:#D9D9D9" title="シルバー" aria-label="シルバー"></button>
+              <button type="button" class="swatch" aria-pressed="false" data-c="#C98A9A" data-name="pink" style="--sw:#EBCBD3" title="くすみピンク" aria-label="くすみピンク"></button>
+              <button type="button" class="swatch" aria-pressed="false" data-c="#B7AEE9" data-name="lavender" style="--sw:#CFC9F6" title="ラベンダー" aria-label="ラベンダー"></button>
+              <button type="button" class="swatch pearl" aria-pressed="false" data-c="#F4F2EE" data-edge="#C9CDD3" data-name="pearl" style="--sw:#FAFAFA" title="パールホワイト" aria-label="パールホワイト"></button>
             </div>
           </div>
           <div class="btns">
-            <button class="primary" id="render">チェキを作る</button>
-            <button id="save">PNGで保存</button>
-            <button id="print">印刷用に保存（大）</button>
-            <button id="clear">リセット</button>
+            <button class="primary" id="render" data-i18n="render">チェキを作る</button>
+            <button id="save" data-i18n="save">PNGで保存</button>
+            <button id="print" data-i18n="print">印刷用に保存（大）</button>
+            <button id="clear" data-i18n="clear">リセット</button>
           </div>
           <div class="tip" id="print-status" role="status"></div>
-          <div class="tip">画面 720×900px。「印刷用に保存（大）」は同じ見た目を 2160×2700px（小カードなら300dpi以上）で書き出します。見出し・ひとことは明朝（Shippori Mincho）。</div>
+          <div class="tip" data-i18n="sizeTip">画面 720×900px。「印刷用に保存（大）」は同じ見た目を 2160×2700px（小カードなら300dpi以上）で書き出します。見出し・ひとことは明朝（Shippori Mincho）。</div>
         </div>
       </div>
-      <div class="stage"><canvas id="c" width="720" height="900" aria-label="チェキ出力"></canvas></div>
+      <div class="stage"><canvas id="c" width="720" height="900" aria-label="チェキ出力" data-i18n-label="canvas"></canvas></div>
     </div>
   </div>
 
 <script>
+// ===== 日英の文言（直訳ではなく、海外の推し活ファンに伝わる言い方にしている） =====
+const I18N = {
+  ja: {
+    docTitle: "チェキメーカー",
+    title: "チェキメーカー",
+    lead: "画像とひとことを入れるだけ。静かな水色のチェキ風PNGにして保存できる。画像と入力内容は端末内で処理し、外部へ送信しません。表示用フォントはGoogle Fontsから取得します。",
+    about: "",
+    fileLabel: "画像を選ぶ",
+    captionLabel: "ひとこと（推しの名前・日付・会場など）",
+    captionTip: "入力は最大64文字。2行に収まらない部分は「…」で省略されます。",
+    accentLabel: "アクセント",
+    render: "チェキを作る",
+    save: "PNGで保存",
+    print: "印刷用に保存（大）",
+    clear: "リセット",
+    sizeTip: "画面 720×900px。「印刷用に保存（大）」は同じ見た目を 2160×2700px（小カードなら300dpi以上）で書き出します。見出し・ひとことは明朝（Shippori Mincho）。",
+    canvas: "チェキ出力",
+    loading: "画像を読み込み中…",
+    loadError: "画像を読み込めませんでした。別の画像を選んでください。",
+    printError: "印刷用PNGを保存できませんでした。通常のPNG保存をお試しください。",
+    colors: { blue:"青", crystal:"クリスタル水色", silver:"シルバー", pink:"くすみピンク", lavender:"ラベンダー", pearl:"パールホワイト" },
+  },
+  en: {
+    docTitle: "Cheki Maker — pale-blue instant photo cards",
+    title: "Cheki Maker",
+    lead: "Add a photo and a short caption, and save it as a calm, pale-blue instant-photo card (PNG). Your photo and text stay on your device and are never uploaded. Only the display fonts are loaded from Google Fonts.",
+    about: "“Cheki” is what fans in Japan call instant photos — like the ones you take with your oshi (the idol, character or creator you support) at events. Make your own as a keepsake.",
+    fileLabel: "Choose a photo",
+    captionLabel: "Caption (your oshi’s name, the date, the venue…)",
+    captionTip: "Up to 64 characters. Anything that doesn’t fit on two lines is cut off with “…”.",
+    accentLabel: "Accent color",
+    render: "Make my cheki",
+    save: "Save PNG",
+    print: "Save for print (large)",
+    clear: "Reset",
+    sizeTip: "Screen size: 720×900 px. “Save for print” exports the same design at 2160×2700 px (300 dpi or more for small cards). The caption is set in Shippori Mincho, a Japanese serif typeface.",
+    canvas: "Cheki preview",
+    loading: "Loading photo…",
+    loadError: "Couldn’t load this image. Please choose another one.",
+    printError: "Couldn’t save the print-size PNG. Please try “Save PNG” instead.",
+    colors: { blue:"Blue", crystal:"Crystal blue", silver:"Silver", pink:"Dusty pink", lavender:"Lavender", pearl:"Pearl white" },
+  },
+};
+let lang = "ja";
+const t = (k) => I18N[lang][k];
+
+// 初期言語：URLの ?lang= ＞ 前回選んだ言語 ＞ ブラウザの言語（日本語以外なら英語）
+function initialLang() {
+  const q = new URLSearchParams(location.search).get("lang");
+  if (q === "ja" || q === "en") return q;
+  try { const s = localStorage.getItem("cheki-lang"); if (s === "ja" || s === "en") return s; } catch {}
+  return (navigator.language || "ja").toLowerCase().startsWith("ja") ? "ja" : "en";
+}
+
+function applyLang(next) {
+  lang = next;
+  document.documentElement.lang = lang;
+  document.title = t("docTitle");
+  document.querySelectorAll("[data-i18n]").forEach((n) => {
+    const v = t(n.dataset.i18n);
+    n.textContent = v;
+    n.hidden = !v;   // 日本語では不要な説明（チェキ・推しの解説）は隠す
+  });
+  document.querySelectorAll("[data-i18n-label]").forEach((n) => n.setAttribute("aria-label", t(n.dataset.i18nLabel)));
+  document.querySelectorAll("#accent .swatch").forEach((b) => {
+    const name = t("colors")[b.dataset.name];
+    b.title = name; b.setAttribute("aria-label", name);
+  });
+  document.querySelectorAll("#lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+  try { localStorage.setItem("cheki-lang", lang); } catch {}
+}
+
 const W = 720, H = 900;
 const PAD = 26, INNER = 30, CAP_H = 150, FRAME_R = 26, PHOTO_R = 14;
 const COL = { back:"#EEF4FF", paper:"#FFFFFF", photoBg:"#E6F5FF", ink:"#1E2633", date:"#9aa6b4" };
@@ -129,7 +218,7 @@ el.file.addEventListener("change", async (e) => {
   if (!f) return;
   const request = ++imageRequest;
   img = null;
-  el.fileStatus.textContent = "画像を読み込み中…";
+  el.fileStatus.textContent = t("loading");
   el.save.disabled = el.print.disabled = true;
   draw();
   try {
@@ -142,7 +231,7 @@ el.file.addEventListener("change", async (e) => {
     if (request !== imageRequest) return;
     img = null;
     el.file.value = "";
-    el.fileStatus.textContent = "画像を読み込めませんでした。別の画像を選んでください。";
+    el.fileStatus.textContent = t("loadError");
     draw();
   } finally {
     if (request === imageRequest) el.save.disabled = el.print.disabled = false;
@@ -160,6 +249,10 @@ el.clear.addEventListener("click", () => {
   draw();
 });
 el.cap.addEventListener("input", draw);
+document.querySelector("#lang").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-lang]");
+  if (b) applyLang(b.dataset.lang);   // 画面の文字だけ切り替える。作ったチェキの絵は変えない
+});
 el.accent.addEventListener("click", (e) => {
   const sw = e.target.closest(".swatch");
   if (!sw) return;
@@ -256,26 +349,38 @@ function drawCaption(text) {
   // 日付（控えめ）
   ctx.font = '14px "Noto Sans JP", system-ui, sans-serif';
   ctx.fillStyle = COL.date;
-  ctx.fillText(new Date().toISOString().slice(0, 10), x + 4, dateY);
+  ctx.fillText(localDate(), x + 4, dateY);
 }
 
-// 1文字ずつ幅を測って折り返す（日本語は空白が無いため文字単位）。入りきらない分は「…」で示す
+// 日付は端末の地域時刻で「年-月-日」（国によって月/日の順が逆になる誤読を避けるため数字順は固定）
+function localDate(d = new Date()) {
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+// 幅を測って折り返す。英語などは単語の途中で切らず空白で折り返し、
+// 日本語のように空白の無い文や長すぎる単語は1文字単位で折る。入りきらない分は「…」で示す
 function wrapLines(text, maxW, maxLines) {
-  const chars = [...text];
+  const units = [];
+  for (const tok of text.match(/\S+\s*|\s+/g) || []) {
+    if (ctx.measureText(tok.trimEnd()).width <= maxW) units.push(tok);
+    else units.push(...[...tok]);
+  }
   const lines = [];
   let cur = "";
-  for (let i = 0; i < chars.length; i++) {
-    const next = cur + chars[i];
-    if (ctx.measureText(next).width <= maxW) { cur = next; continue; }
+  for (let i = 0; i < units.length; i++) {
+    const next = cur + units[i];
+    if (ctx.measureText(next.trimEnd()).width <= maxW) { cur = next; continue; }
     if (lines.length === maxLines - 1) {
-      while (cur && ctx.measureText(cur + "…").width > maxW) cur = [...cur].slice(0, -1).join("");
-      lines.push(cur + "…");
+      cur = next;
+      while (cur && ctx.measureText(cur.trimEnd() + "…").width > maxW) cur = [...cur].slice(0, -1).join("");
+      lines.push(cur.trimEnd() + "…");
       return lines;
     }
-    lines.push(cur);
-    cur = chars[i];
+    if (cur) lines.push(cur.trimEnd());
+    cur = units[i].trimStart();
   }
-  if (cur) lines.push(cur);
+  if (cur) lines.push(cur.trimEnd());
   return lines;
 }
 
@@ -316,7 +421,7 @@ function exportPrint(scale = 3) {
     a.href = url;
     a.click();
   } catch {
-    el.printStatus.textContent = "印刷用PNGを保存できませんでした。通常のPNG保存をお試しください。";
+    el.printStatus.textContent = t("printError");
   } finally {
     ctx = prev;   // 成否にかかわらず画面用に戻す。プレビューは再描画しない
   }
@@ -342,6 +447,7 @@ function fileToImage(file) {
   });
 }
 
+applyLang(initialLang());
 baseFrame();
 // 明朝Webフォントが届いたら、文字を含む絵を描き直す（フォント読み込みの取りこぼし防止）
 if (document.fonts && document.fonts.ready) {
