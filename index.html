@@ -93,6 +93,7 @@
             <button id="print">印刷用に保存（大）</button>
             <button id="clear">リセット</button>
           </div>
+          <div class="tip" id="print-status" role="status"></div>
           <div class="tip">画面 720×900px。「印刷用に保存（大）」は同じ見た目を 2160×2700px（小カードなら300dpi以上）で書き出します。見出し・ひとことは明朝（Shippori Mincho）。</div>
         </div>
       </div>
@@ -118,6 +119,7 @@ const el = {
   render: document.querySelector("#render"),
   save: document.querySelector("#save"),
   print: document.querySelector("#print"),
+  printStatus: document.querySelector("#print-status"),
   clear: document.querySelector("#clear"),
   accent: document.querySelector("#accent"),
 };
@@ -153,6 +155,7 @@ el.clear.addEventListener("click", () => {
   ++imageRequest;
   img = null; el.file.value = ""; el.cap.value = "";
   el.fileStatus.textContent = "";
+  el.printStatus.textContent = "";
   el.save.disabled = el.print.disabled = false;
   draw();
 });
@@ -297,19 +300,26 @@ function savePNG() {
 
 // 印刷用：同じ絵をそのまま scale 倍の高解像度で書き出す（見た目は変えない）
 function exportPrint(scale = 3) {
-  const oc = document.createElement("canvas");
-  oc.width = W * scale; oc.height = H * scale;
   const prev = ctx;
-  ctx = oc.getContext("2d");   // 一時的に描画先を高解像度キャンバスへ
-  ctx.scale(scale, scale);     // W×H 座標のまま scale 倍で描かれる
-  draw();
-  const url = oc.toDataURL("image/png");
-  ctx = prev;                  // 画面用に戻す
-  draw();                      // 画面を元の表示に再描画
-  const a = document.createElement("a");
-  a.download = "cheki_print.png";
-  a.href = url;
-  a.click();
+  el.printStatus.textContent = "";
+  try {
+    const oc = document.createElement("canvas");
+    oc.width = W * scale; oc.height = H * scale;
+    ctx = oc.getContext("2d");   // 一時的に描画先を高解像度キャンバスへ
+    if (!ctx) throw new Error("印刷用Canvasを作成できませんでした");
+    ctx.scale(scale, scale);
+    draw();
+    const url = oc.toDataURL("image/png");
+    if (!url.startsWith("data:image/png;base64,")) throw new Error("PNGを作成できませんでした");
+    const a = document.createElement("a");
+    a.download = "cheki_print.png";
+    a.href = url;
+    a.click();
+  } catch {
+    el.printStatus.textContent = "印刷用PNGを保存できませんでした。通常のPNG保存をお試しください。";
+  } finally {
+    ctx = prev;   // 成否にかかわらず画面用に戻す。プレビューは再描画しない
+  }
 }
 
 function roundRect(x, y, w, h, r) {
