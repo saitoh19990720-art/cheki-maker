@@ -36,19 +36,23 @@
     font-family:inherit; font-size:13px;
   }
   .field{ margin-top:14px; }
-  .accent{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
-  .swatch.pearl{ box-shadow:0 0 0 1px #C9CDD3; }   /* 白は台紙に溶けないよう薄いグレーの縁 */
-  .swatch.pearl.sel{ box-shadow:0 0 0 2px var(--accent-d); }
-  .swatch{ width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid #fff; box-shadow:0 0 0 1px var(--line); }
-  .swatch.sel{ box-shadow:0 0 0 2px var(--accent-d); }
+  .accent{ display:flex; flex-wrap:wrap; gap:0; margin:4px 0 0 -7px; }
+  /* 押せる範囲は44px、見える丸は30pxのまま */
+  .swatch{ width:44px; height:44px; padding:0; border:0; border-radius:50%; background:transparent; display:grid; place-items:center; }
+  .swatch:hover{ background:transparent; }
+  .swatch::before{ content:""; width:30px; height:30px; border-radius:50%; background:var(--sw); border:2px solid #fff; box-shadow:0 0 0 1px var(--line); box-sizing:border-box; }
+  .swatch.pearl::before{ box-shadow:0 0 0 1px #C9CDD3; }   /* 白は台紙に溶けないよう薄いグレーの縁 */
+  .swatch[aria-pressed="true"]::before{ box-shadow:0 0 0 2px var(--accent-d); }
+  .swatch:focus-visible{ outline:2px solid var(--accent-d); outline-offset:-2px; }
   .btns{ display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
   button{
-    font-family:var(--sans); font-size:13px; padding:10px 16px; border-radius:12px;
+    font-family:var(--sans); font-size:13px; padding:10px 16px; min-height:44px; border-radius:12px;
     border:1px solid var(--line); cursor:pointer; transition:.15s; background:#fff; color:var(--ink);
   }
-  button.primary{ background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; box-shadow:0 6px 16px rgba(127,168,232,.28); }
+  /* 白文字のAA（4.5:1以上）を満たすため、主ボタンは濃いアクセント #4A73B8（4.7:1） */
+  button.primary{ background:#4A73B8; border-color:#4A73B8; color:#fff; font-weight:600; box-shadow:0 6px 16px rgba(74,115,184,.24); }
   button:hover{ background:var(--reflect); }
-  button.primary:hover{ filter:brightness(.98); background:var(--accent); }
+  button.primary:hover{ filter:brightness(.98); background:#4A73B8; }
   .tip{ font-family:"Noto Sans JP",sans-serif; font-size:11px; color:var(--muted); margin-top:10px; }
   .stage{ display:grid; place-items:center; margin-top:18px; }
   canvas{ max-width:100%; border-radius:12px; box-shadow:0 10px 30px rgba(30,38,51,.10); }
@@ -57,28 +61,30 @@
 <body>
   <div class="app">
     <h1>チェキメーカー</h1>
-    <p class="lead">画像とひとことを入れるだけ。静かな水色のチェキ風PNGにして保存できる。すべて端末内・通信なし。</p>
+    <p class="lead">画像とひとことを入れるだけ。静かな水色のチェキ風PNGにして保存できる。画像と入力内容は端末内で処理し、外部へ送信しません。表示用フォントはGoogle Fontsから取得します。</p>
 
     <div class="card">
       <div class="row">
         <div class="col">
           <label>画像を選ぶ
-            <input id="file" type="file" accept="image/*" />
+            <input id="file" type="file" accept="image/*" aria-describedby="file-status" />
           </label>
+          <p class="tip" id="file-status" role="status"></p>
           <div class="field">
             <label>ひとこと（推しの名前・日付・会場など）
-              <input id="caption" type="text" maxlength="64" placeholder="" />
+              <input id="caption" type="text" maxlength="64" placeholder="" aria-describedby="caption-tip" />
             </label>
+            <p class="tip" id="caption-tip">入力は最大64文字。2行に収まらない部分は「…」で省略されます。</p>
           </div>
           <div class="field">
-            <label>アクセント</label>
-            <div class="accent" id="accent">
-              <div class="swatch sel" data-c="#5A84C9" style="background:#7FA8E8" title="青"></div>
-              <div class="swatch" data-c="#7FA8E8" style="background:#CFEFFF" title="クリスタル水色"></div>
-              <div class="swatch" data-c="#9AA6B4" style="background:#D9D9D9" title="シルバー"></div>
-              <div class="swatch" data-c="#C98A9A" style="background:#EBCBD3" title="くすみピンク"></div>
-              <div class="swatch" data-c="#B7AEE9" style="background:#CFC9F6" title="ラベンダー"></div>
-              <div class="swatch pearl" data-c="#F4F2EE" data-edge="#C9CDD3" style="background:#FAFAFA" title="パールホワイト"></div>
+            <label id="accent-label">アクセント</label>
+            <div class="accent" id="accent" role="group" aria-labelledby="accent-label">
+              <button type="button" class="swatch" aria-pressed="true" data-c="#5A84C9" style="--sw:#7FA8E8" title="青" aria-label="青"></button>
+              <button type="button" class="swatch" aria-pressed="false" data-c="#7FA8E8" style="--sw:#CFEFFF" title="クリスタル水色" aria-label="クリスタル水色"></button>
+              <button type="button" class="swatch" aria-pressed="false" data-c="#9AA6B4" style="--sw:#D9D9D9" title="シルバー" aria-label="シルバー"></button>
+              <button type="button" class="swatch" aria-pressed="false" data-c="#C98A9A" style="--sw:#EBCBD3" title="くすみピンク" aria-label="くすみピンク"></button>
+              <button type="button" class="swatch" aria-pressed="false" data-c="#B7AEE9" style="--sw:#CFC9F6" title="ラベンダー" aria-label="ラベンダー"></button>
+              <button type="button" class="swatch pearl" aria-pressed="false" data-c="#F4F2EE" data-edge="#C9CDD3" style="--sw:#FAFAFA" title="パールホワイト" aria-label="パールホワイト"></button>
             </div>
           </div>
           <div class="btns">
@@ -101,11 +107,13 @@ const COL = { back:"#EEF4FF", paper:"#FFFFFF", photoBg:"#E6F5FF", ink:"#1E2633",
 let accentLine = "#5A84C9";   // 罫線・点の色（正本アクセント青）
 let accentEdge = null;        // 白など淡い色のときだけ付ける縁の色
 let img = null;
+let imageRequest = 0;
 
 const screenCtx = document.querySelector("#c").getContext("2d");
 let ctx = screenCtx;   // 印刷書き出し時だけ一時的に高解像度キャンバスへ差し替える
 const el = {
   file: document.querySelector("#file"),
+  fileStatus: document.querySelector("#file-status"),
   cap: document.querySelector("#caption"),
   render: document.querySelector("#render"),
   save: document.querySelector("#save"),
@@ -117,24 +125,46 @@ const el = {
 el.file.addEventListener("change", async (e) => {
   const f = e.target.files && e.target.files[0];
   if (!f) return;
-  img = await fileToImage(f);
+  const request = ++imageRequest;
+  img = null;
+  el.fileStatus.textContent = "画像を読み込み中…";
+  el.save.disabled = el.print.disabled = true;
   draw();
+  try {
+    const loaded = await fileToImage(f);
+    if (request !== imageRequest) return;
+    img = loaded;
+    draw();
+    el.fileStatus.textContent = "";
+  } catch {
+    if (request !== imageRequest) return;
+    img = null;
+    el.file.value = "";
+    el.fileStatus.textContent = "画像を読み込めませんでした。別の画像を選んでください。";
+    draw();
+  } finally {
+    if (request === imageRequest) el.save.disabled = el.print.disabled = false;
+  }
 });
 el.render.addEventListener("click", draw);
 el.save.addEventListener("click", savePNG);
 el.print.addEventListener("click", () => exportPrint(3));
 el.clear.addEventListener("click", () => {
-  img = null; el.file.value = ""; el.cap.value = ""; baseFrame();
+  ++imageRequest;
+  img = null; el.file.value = ""; el.cap.value = "";
+  el.fileStatus.textContent = "";
+  el.save.disabled = el.print.disabled = false;
+  draw();
 });
-el.cap.addEventListener("input", () => { if (img) draw(); });
+el.cap.addEventListener("input", draw);
 el.accent.addEventListener("click", (e) => {
   const sw = e.target.closest(".swatch");
   if (!sw) return;
-  [...el.accent.children].forEach((c) => c.classList.remove("sel"));
-  sw.classList.add("sel");
+  [...el.accent.children].forEach((c) => c.setAttribute("aria-pressed", "false"));
+  sw.setAttribute("aria-pressed", "true");
   accentLine = sw.getAttribute("data-c");
   accentEdge = sw.getAttribute("data-edge");
-  if (img) draw();
+  draw();
 });
 
 function draw() {
@@ -204,16 +234,46 @@ function drawCaption(text) {
     ctx.stroke();
   }
 
-  // ひとこと（明朝・世界観の核）
+  // ひとこと（明朝・世界観の核）。1行に収まらなければ少し小さくして2行まで折り返す
+  const maxW = w - 8;
   ctx.fillStyle = COL.ink;
-  ctx.font = '700 30px "Shippori Mincho", serif';
   ctx.textBaseline = "top";
-  ctx.fillText((text || "").trim().slice(0, 32), x + 4, boxY + 28);
+  const t = (text || "").trim();
+  ctx.font = '700 30px "Shippori Mincho", serif';
+  let dateY = boxY + 80;
+  if (ctx.measureText(t).width <= maxW) {
+    ctx.fillText(t, x + 4, boxY + 28);
+  } else {
+    ctx.font = '700 26px "Shippori Mincho", serif';
+    const lines = wrapLines(t, maxW, 2);
+    lines.forEach((ln, i) => ctx.fillText(ln, x + 4, boxY + 24 + i * 38));
+    dateY = boxY + 104;
+  }
 
   // 日付（控えめ）
   ctx.font = '14px "Noto Sans JP", system-ui, sans-serif';
   ctx.fillStyle = COL.date;
-  ctx.fillText(new Date().toISOString().slice(0, 10), x + 4, boxY + 80);
+  ctx.fillText(new Date().toISOString().slice(0, 10), x + 4, dateY);
+}
+
+// 1文字ずつ幅を測って折り返す（日本語は空白が無いため文字単位）。入りきらない分は「…」で示す
+function wrapLines(text, maxW, maxLines) {
+  const chars = [...text];
+  const lines = [];
+  let cur = "";
+  for (let i = 0; i < chars.length; i++) {
+    const next = cur + chars[i];
+    if (ctx.measureText(next).width <= maxW) { cur = next; continue; }
+    if (lines.length === maxLines - 1) {
+      while (cur && ctx.measureText(cur + "…").width > maxW) cur = [...cur].slice(0, -1).join("");
+      lines.push(cur + "…");
+      return lines;
+    }
+    lines.push(cur);
+    cur = chars[i];
+  }
+  if (cur) lines.push(cur);
+  return lines;
 }
 
 function addGrain(strength) {
@@ -265,9 +325,10 @@ function roundRect(x, y, w, h, r) {
 function fileToImage(file) {
   return new Promise((res, rej) => {
     const im = new Image();
-    im.onload = () => res(im);
-    im.onerror = rej;
-    im.src = URL.createObjectURL(file);
+    const url = URL.createObjectURL(file);
+    im.onload = () => { URL.revokeObjectURL(url); res(im); };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error("画像を読み込めませんでした")); };
+    im.src = url;
   });
 }
 
